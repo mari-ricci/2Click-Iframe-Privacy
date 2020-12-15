@@ -1,0 +1,26 @@
+.privacy-msg p {
+    background-color: white;
+    border: 1px solid black;
+    padding: 20px;
+    text-align: center;
+    -webkit-box-shadow: 0 10px 6px -6px #777;
+    -moz-box-shadow: 0 10px 6px -6px #777;
+    box-shadow: 0 10px 6px -6px #777;
+}
+
+.privacy-msg {
+    align-items: center;
+    justify-content: center;
+}
+
+@media (min-width: 768px) {
+    .privacy-msg {
+        display: flex;
+        height: 100%;
+    }
+    .privacy-msg p {
+        position: relative;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+}

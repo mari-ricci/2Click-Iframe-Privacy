@@ -1,36 +1,34 @@
 /*!
  * 2Click-Iframe-Privacy v0.3.0
  * https://github.com/01-Scripts/2Click-Iframe-Privacy
- * 
+ *
  * Licensed MIT © 2018-2019 Michael Lorer - https://www.01-scripts.de/
  */
 
- var _2ClickIframePrivacy = new function() {
+var _2ClickIframePrivacy = new function() {
 
     var config = {
         enableCookies: true,
         useSessionCookie: true,
         cookieNamespace: '_2ClickIPEnable-',
-        showContentLabel: 'Inhalt anzeigen',
-        rememberChoiceLabel: 'Auswahl merken',
-        privacyPolicyLabel: 'Datenschutzerklärung',
-        privacyPolicyUrl: false
+        showContentLabel: 'Show content.',
+        showContentDescription: 'Click on the link to show the content.</br>',
+        rememberChoiceLabel: 'Remember choice',
+        privacyPolicyLabel: 'Data policy',
+        privacyPolicyUrl: false,
+        backgroundImageSrc: false
     };
-    
-    this.types = new Array(
+
+    this.types = [
         {
-            type: 'video',
-            description: 'Zum Aktivieren des Videos bitte auf den Link klicken. Durch das Aktivieren von eingebetteten Videos werden Daten an den jeweiligen Anbieter übermittelt. Weitere Informationen können unserer Datenschutzerklärung entnommen werden.<br />'
+            type: 'video'
         },
         {
-            type: 'map',
-            description: 'Zum Aktivieren der eingebetteten Karte bitte auf den Link klicken. Durch das Aktivieren werden Daten an den jeweiligen Anbieter übermittelt. Weitere Informationen können unserer Datenschutzerklärung entnommen werden.<br />'
+            type: 'map'
         },
         {
-            type: 'calendar',
-            description: 'Zum Aktivieren des eingebetteten Kalenders bitte auf den Link klicken. Durch das Aktivieren werden Daten an den jeweiligen Anbieter übermittelt. Weitere Informationen können unserer Datenschutzerklärung entnommen werden.<br />'
-        }
-    );
+            type: 'calendar'
+        }];
 
     function setCookie(name, value, days) {
         var d = new Date;
@@ -48,17 +46,24 @@
     }
 
     // Create <div>-element within the respective iframe to display the defined data-security message and get consent for loading the iframe content.
-    function wrap(el, wrapper, type, text) {
+    function wrap(el, wrapper, type, text, background) {
         el.parentNode.insertBefore(wrapper, el);
         wrapper.className = 'privacy-msg privacy-'+type+'-msg';
-        wrapper.style.width = el.clientWidth+'px';
-        wrapper.style.height = el.clientHeight+'px';
+        if(background !== false){
+            wrapper.style.backgroundImage = 'url(\"'+ config.backgroundImageSrc + '\")';
+            wrapper.style.backgroundPosition = 'center center';
+            wrapper.style.backgroundColor = 'white';
+            wrapper.style.backgroundRepeat = 'no-repeat';
+            wrapper.style.backgroundSize = 'cover';
+        }
+        wrapper.style.width = el.clientWidth;
+        wrapper.style.height = el.clientHeight;
         wrapper.innerHTML = text +'<a href="#foo" onclick="_2ClickIframePrivacy.EnableContent(\''+ type +'\'); return false;">'+config.showContentLabel+'</a>';
         if(config.enableCookies){
             wrapper.innerHTML = wrapper.innerHTML + '<br /><input type="checkbox" name="remind-\''+ type +'\'" /> <label>'+config.rememberChoiceLabel+'</label>';
         }
         if(config.privacyPolicyUrl){
-            wrapper.innerHTML = wrapper.innerHTML + '<br /><a href="'+config.privacyPolicyUrl+'">'+config.privacyPolicyLabel+'</a>';
+            wrapper.innerHTML = wrapper.innerHTML + '<br /><a href="'+config.privacyPolicyUrl+'" target="_blank" rel="noopener">'+config.privacyPolicyLabel+'</a>';
         }
         wrapper.innerHTML = '<p>' + wrapper.innerHTML + '</p>';
         wrapper.appendChild(el);
@@ -134,11 +139,19 @@
         if (typeof Userconfig.showContentLabel !== 'undefined') {
             config.showContentLabel = Userconfig.showContentLabel;
         }
+        //added user-defined show content description
+        if (typeof Userconfig.showContentDescription !== 'undefined') {
+            config.showContentDescription = Userconfig.showContentDescription;
+        }
         if (typeof Userconfig.rememberChoiceLabel !== 'undefined') {
             config.rememberChoiceLabel = Userconfig.rememberChoiceLabel;
         }
         if (typeof Userconfig.privacyPolicyLabel !== 'undefined') {
             config.privacyPolicyLabel = Userconfig.privacyPolicyLabel;
+        }
+        //added user-defined background image
+        if (typeof Userconfig.backgroundImageSrc !== 'undefined') {
+            config.backgroundImageSrc = Userconfig.backgroundImageSrc;
         }
 
         if (Array.isArray(Userconfig.CustomTypes)) {
@@ -151,7 +164,7 @@
             var x;
             if(!getCookie(config.cookieNamespace+this.types[i].type)){
                 for (x = 0; x < selector.length; x++) {
-                    wrap(selector[x], document.createElement('div'), this.types[i].type, this.types[i].description);
+                    wrap(selector[x], document.createElement('div'), this.types[i].type, config.showContentDescription, config.backgroundImageSrc);
                 }
             }else{
                 for (x = 0; x < selector.length; x++) {
